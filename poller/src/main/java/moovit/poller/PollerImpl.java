@@ -16,6 +16,6 @@ public class PollerImpl implements IPoller {
 
     @Override
     public List<LineEta> getStopArrivals(int stopId) {
-        etaCacheManager.getLineEta(stopId);
+        return etaCacheManager.getLineEta(stopId);
     }
 }

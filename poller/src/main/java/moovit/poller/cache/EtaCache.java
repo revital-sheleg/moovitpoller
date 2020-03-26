@@ -47,11 +47,11 @@ public class EtaCache {
         }
     }
 
-    public void loadEtaCacheWithEtaList(Map<String, List<StopEta>> lineStopList, ConcurrentHashMap map) {
+    public void loadEtaCacheWithEtaList(ConcurrentHashMap<String, List<StopEta>> lineStopList) {
         try {
             etaHashMapTmp = new ConcurrentHashMap<>();
             for (Map.Entry<String,List<StopEta>> entry : lineStopList.entrySet()) {
-                updateEtaCacheWithEta(entry.getKey(), entry.getValue(), map);
+                updateEtaCacheWithEta(entry.getKey(), entry.getValue(), etaHashMapTmp);
             }
             //replace maps ()
             etaHashMap = etaHashMapTmp;

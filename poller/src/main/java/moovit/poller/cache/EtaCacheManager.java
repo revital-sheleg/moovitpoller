@@ -2,10 +2,15 @@ package moovit.poller.cache;
 
 import moovit.poller.LineEta;
 import moovit.poller.etaapi.INextBusProvider;
+import moovit.poller.etaapi.StopEta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
@@ -34,32 +39,36 @@ public class EtaCacheManager implements Runnable {
 
     public List<LineEta> getLineEta(int stop) {
         if(etaCache.isInt) {
-            etaCache.etaHashMap.get(stop);
+            return  etaCache.etaHashMap.get(stop);
+        }else {
+            LOGGER.warn("cache not ready");
         }
+        return null;
+    }
+
+
+    private void loadCache() {
+
     }
 
     @Override
     public void run() {
-        LOGGER.info("get time line foreach line");
-        try {
-            LOGGER.info("Program started");
 
-            // Create a list of tasks to be executed
-            vat tasks = List.of(lineIds.stream().map()
-                    //new EtaTask(nextBusProvider, ),
-                    );
+        LOGGER.info("Program started");
 
-            var executor = Executors.newFixedThreadPool(threadNum);
-
-            tasks.stream().map(Worker::new).forEach(executor::execute);
-            // All tasks were executed, now shutdown
-            executor.shutdown();
-            while (!executor.isTerminated()) {
-                Thread.yield();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<Task> tasks = new ArrayList<>();
+        // Create a list of tasks to be executed
+        ConcurrentHashMap<String, List<StopEta>> taskResultMap = new ConcurrentHashMap();
+        for (String line: lineIds) {
+            tasks.add(new EtaTask(nextBusProvider, line, taskResultMap));
         }
+        ExecutorService executor = Executors.newFixedThreadPool(threadNum);
+        tasks.stream().forEach(executor::execute);
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            Thread.yield();
+        }
+        //call update cache with results
+        etaCache.loadEtaCacheWithEtaList(taskResultMap);
     }
 }
