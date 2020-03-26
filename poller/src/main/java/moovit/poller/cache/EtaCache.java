@@ -20,6 +20,8 @@ public class EtaCache {
     //update temp eta map and replace.
     ConcurrentHashMap<Integer, List<LineEta>> etaHashMapTmp;
 
+    boolean isInt = false;
+
     public EtaCache(){
         etaHashMap = new ConcurrentHashMap<>();
         etaHashMapTmp = new ConcurrentHashMap<>();
@@ -45,7 +47,7 @@ public class EtaCache {
         }
     }
 
-    public void updateEtaCacheWithEtaList(Map<String, List<StopEta>> lineStopList, ConcurrentHashMap map) {
+    public void loadEtaCacheWithEtaList(Map<String, List<StopEta>> lineStopList, ConcurrentHashMap map) {
         try {
             etaHashMapTmp = new ConcurrentHashMap<>();
             for (Map.Entry<String,List<StopEta>> entry : lineStopList.entrySet()) {
@@ -53,6 +55,7 @@ public class EtaCache {
             }
             //replace maps ()
             etaHashMap = etaHashMapTmp;
+            isInt = true;
 
         } catch (Exception e) {
             LOGGER.error("updateEtaCacheWithEta exception");
@@ -64,5 +67,7 @@ public List<LineEta> getLineEta(int stop) {
         return etaHashMap.get(stop);
 }
 
-
+    public boolean isInt() {
+        return isInt;
+    }
 }

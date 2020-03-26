@@ -1,7 +1,7 @@
 package moovit.poller.cache;
 
+import moovit.poller.LineEta;
 import moovit.poller.etaapi.INextBusProvider;
-import moovit.poller.etaapi.StopEta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,25 +9,33 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 
-public class EtaCacheLoader implements Runnable {
+public class EtaCacheManager implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EtaCacheLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EtaCacheManager.class);
 
     private List<String> lineIds;
 
     private int threadNum;
 
+    private int sleepInterval;
+
     private INextBusProvider nextBusProvider;
 
-    public EtaCacheLoader(final Task task) {
-       lineIds = loadLines();
-       threadNum = 4; //TODO: load from configuration
-      //  nextBusProvider //TODO: get, consider injection
+    private EtaCache etaCache;
 
+    public EtaCacheManager(List<String> lineIds, int threadNum, int sleepInterval, INextBusProvider nextBusProvider) {
+       this.lineIds = lineIds;
+       this.threadNum = threadNum;
+       this.sleepInterval = sleepInterval;
+       this.nextBusProvider = nextBusProvider;
+       etaCache = new EtaCache();
     }
 
-    private List<String> loadLines(){
-        return null; //TODO: implement get lines
+
+    public List<LineEta> getLineEta(int stop) {
+        if(etaCache.isInt) {
+            etaCache.etaHashMap.get(stop);
+        }
     }
 
     @Override
