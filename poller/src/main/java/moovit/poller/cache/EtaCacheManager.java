@@ -9,9 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 
 public class EtaCacheManager implements Runnable {
@@ -28,12 +26,15 @@ public class EtaCacheManager implements Runnable {
 
     private EtaCache etaCache;
 
+    final ScheduledExecutorService execService = Executors.newSingleThreadScheduledExecutor();
+
     public EtaCacheManager(List<String> lineIds, int threadNum, int sleepInterval, INextBusProvider nextBusProvider) {
        this.lineIds = lineIds;
        this.threadNum = threadNum;
        this.sleepInterval = sleepInterval;
        this.nextBusProvider = nextBusProvider;
        etaCache = new EtaCache();
+       execService.schedule(this::loadCache ,sleepInterval, TimeUnit.MILLISECONDS);
     }
 
 
@@ -48,13 +49,7 @@ public class EtaCacheManager implements Runnable {
 
 
     private void loadCache() {
-
-    }
-
-    @Override
-    public void run() {
-
-        LOGGER.info("Program started");
+        LOGGER.info("started load tasks");
 
         List<Task> tasks = new ArrayList<>();
         // Create a list of tasks to be executed
@@ -70,5 +65,10 @@ public class EtaCacheManager implements Runnable {
         }
         //call update cache with results
         etaCache.loadEtaCacheWithEtaList(taskResultMap);
+    }
+
+    @Override
+    public void run() {
+        loadCache();
     }
 }
